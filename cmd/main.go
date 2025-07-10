@@ -34,7 +34,7 @@ func main() {
 	router.GET("/orders/:id", controllers.GetOrderByID(db))
 	router.PUT("/orders/:id", controllers.UpdateOrder(db))
 	router.DELETE("/orders/:id", controllers.DeleteOrder(db))
-
+	router.GET("/orders", controllers.ListOrders(db))
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5001"
