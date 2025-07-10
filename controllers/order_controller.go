@@ -120,3 +120,46 @@ func DeleteOrder(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"message": "Orden cancelada"})
 	}
 }
+
+// Listar órdenes del usuario autenticado
+func ListOrders(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		email, exists := c.Get("email")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token sin email"})
+			return
+		}
+
+		rows, err := db.Query("SELECT id, total, status FROM orders WHERE user_email=$1", email)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al consultar órdenes"})
+			return
+		}
+		defer rows.Close()
+
+		var orders []models.Order
+		for rows.Next() {
+			var order models.Order
+			order.Email = email.(string)
+			if err := rows.Scan(&order.ID, &order.Total, &order.Status); err != nil {
+				continue
+			}
+
+			// Cargar ítems de esta orden
+			itemsRows, err := db.Query("SELECT product_id, quantity, price FROM order_items WHERE order_id=$1", order.ID)
+			if err == nil {
+				for itemsRows.Next() {
+					var item models.OrderItem
+					if err := itemsRows.Scan(&item.ProductID, &item.Quantity, &item.Price); err == nil {
+						order.Items = append(order.Items, item)
+					}
+				}
+				itemsRows.Close()
+			}
+
+			orders = append(orders, order)
+		}
+
+		c.JSON(http.StatusOK, orders)
+	}
+}
