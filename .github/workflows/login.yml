@@ -27,7 +27,7 @@ jobs:
         run: |
           echo "🚧 Construyendo imagen..."
           docker build -t agente47/create-orders-service:latest .
-          echo "📤 Subiendo imagen a Docker Hub..."
+          echo "📤 Subiendo imagen a Docker Hub...."
           docker push agente47/create-orders-service:latest
 
       - name: ☁️ Deploy to EC2 via SSH
