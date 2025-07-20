@@ -32,13 +32,20 @@ jobs:
       - name: 🧪 Ejecutar pruebas con cobertura
         run: go test -coverprofile=coverage.out ./...
 
+      - name: 📥 Instalar SonarScanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+          export PATH="$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
+          echo "PATH=$(pwd)/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_ENV
+
       - name: 📊 Ejecutar análisis SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=orders_ms \
+            -Dsonar.projectKey=orders \
             -Dsonar.projectName=orders-service \
             -Dsonar.sources=. \
             -Dsonar.language=go \
