@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: .
+        working-directory: orders_ms
 
     steps:
       - name: 📥 Clonar repositorio
@@ -36,8 +36,7 @@ jobs:
         run: |
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
           unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-          export PATH="$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
-          echo "PATH=$(pwd)/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_ENV
+          echo "$(pwd)/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
 
       - name: 📊 Ejecutar análisis SonarQube
         env:
