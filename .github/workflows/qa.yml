@@ -1,0 +1,49 @@
+name: SonarQube Scan - orders-service
+
+on:
+  push:
+    branches:
+      - test
+    paths:
+      - 'orders_ms/**'
+      - '.github/workflows/qa.yml'
+
+jobs:
+  sonarqube:
+    name: 🧪 Análisis de calidad - Go (orders)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Instalar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: 📦 Instalar dependencias
+        run: go mod tidy
+
+      - name: 🧪 Ejecutar pruebas con cobertura
+        run: go test -coverprofile=coverage.out ./...
+
+      - name: 📊 Ejecutar análisis SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=orders_ms \
+            -Dsonar.projectName=orders-service \
+            -Dsonar.sources=. \
+            -Dsonar.language=go \
+            -Dsonar.sourceEncoding=UTF-8 \
+            -Dsonar.exclusions=**/vendor/**,**/tests/**,**/*_test.go \
+            -Dsonar.go.coverage.reportPaths=coverage.out \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN
